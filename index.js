@@ -1,8 +1,7 @@
 const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
-const { exit } = require('process');
-
+ 
 // const url = 'https://scp-wiki.wikidot.com/scp-series';
 // axios.get(url)
 //   .then(response => {
@@ -25,7 +24,6 @@ function createPath (pathNew){
       if (!fs.existsSync(pathNew)) {
         fs.mkdirSync(pathNew);
       }
-
     } catch (err) {
       console.error(err);
     }
@@ -35,46 +33,51 @@ function createPath (pathNew){
 let pathsCreating = ['html','html/item'];
 Object.keys(pathsCreating).forEach(pathKey => {
   createPath(pathsCreating[pathKey]);
-  
-  // console.log(pathsCreating[pathKey]);
+  console.log(pathsCreating[pathKey]);
 });
 
-// const axios = require('axios');
-// const path = require('path');
-// const fs = require('fs');
-let indexJson = {};
-let seriesArray = []; //contains the index url of all series scps including 001 entires
-let otherSeriesArray = []
 
-// gets all the index from the api of all content avaliable, or at least it should
-let indexURL = 'https://raw.githubusercontent.com/scp-data/scp-api/refs/heads/main/docs/data/scp/items/content_index.json';
-regex = /series-\d+/; //testing regex if text has series in name
 
-axios.get(indexURL)
-  .then(response =>{
+let scpItemUrls = ['https://raw.githubusercontent.com/scp-data/scp-api/refs/heads/main/docs/data/scp/items/content_series-1.json'];
 
-    indexJson = response.data;
-    seriesArray.push('content_scp-001.json');
-    Object.keys(indexJson).forEach(indKey=>{
+// function getSCPItems(itemURL){
+//   let url = scpItemUrls[0];
+
+//   axios.get(url)
+//   .then(response => {
+//     let data = response.data;
+
+//     Object.keys(data).forEach(key => {
+//     newJson = {
       
-      if(regex.test(indexJson[indKey])==true){
-        // console.log(indKey);
-        // console.log(indexJson[indKey]);
-        seriesArray.push(indexJson[indKey]);
-      }
+//     }
+//     let numSCP = key;
+//     newJson.itemNumber = numSCP;
+//     newJson.description = data[key].raw_content;
+    
+//     let jsonData = JSON.stringify(newJson, null, 2);
+    
+//     let paths
+//     paths = path.join('html/item',`${numSCP}.json`);
+//     // console.log(paths);
+//     fs.writeFile(paths, jsonData, 'utf8', (err) => {
+//         if (err) {
+//             console.error('Error writing to file', err);
+//         } else {
+//             console.log('Data written to file');
+//         }
+//     });
       
-      console.log(seriesArray);
-    })
-  }
-  )
+//   });
+//   })
+//   .catch(error => {
+//     console.error('Error fetching HTML:', error);
+//   });
 
+// }
 
-
-// example url https://raw.githubusercontent.com/scp-data/scp-api/refs/heads/main/docs/data/scp/items/content_series-1.json
-let scpItemUrl = ['https://raw.githubusercontent.com/scp-data/scp-api/refs/heads/main/docs/data/scp/items/'];
-
-async function getSCPItems(itemURL){
-  let url = itemURL;
+function getSCPItems(itemURL){
+  let url = scpItemUrls[0];
 
   axios.get(url)
   .then(response => {
@@ -115,4 +118,3 @@ while(i<(Object.keys(scpItemUrls)+1)){
   getSCPItems(scpItemUrls[i+1])
   i++
 }
-
