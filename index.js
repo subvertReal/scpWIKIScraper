@@ -84,7 +84,7 @@ let reg = $.html();
 
 let paths = path.join('html',`${itemNum}.html`);
 
-fs.writeFileSync(`${itemNum}.html`, reg);
+
 fs.writeFile(paths, reg, (err) => {
       if (err) {
         console.error('Error saving file:', err);
@@ -100,34 +100,49 @@ fs.writeFile(paths, reg, (err) => {
 
 
 // downloads file from wiki
-let seriesItemUrl = 'https://scp-wiki.wikidot.com/scp-series-10';
+let seriesItemUrl = 'https://scp-wiki.wikidot.com/scp-series';
 
-async function seriesGet(){
+async function seriesGet() {
   let itemIds = await getItemIds(seriesItemUrl);
-  console.log('test' + itemIds[0]);
+
+  if (itemIds[0] === 'SCP-001') {
+    itemIds.shift();
+  }
+
+  // let it = ['SCP-002', 'SCP-003'];
+
+  // console.log('test');
+
+  for (let i = 0; i < itemIds.length; i++) {
+  try {
+    let url = `https://scp-wiki.wikidot.com/${itemIds[i]}`;
+    const response = await axios.get(url);
+
+    const html = response.data;
+
+    let paths = path.join('editFile.html');
+
+    await fs.promises.writeFile(paths, html);
+
+    console.log(`HTML saved for ${itemIds[i]}`);
+
+    downloadItem();
+
+    // wait 2 seconds before next request
+    await sleep(2000);
+
+  } catch (error) {
+    console.error('Error fetching or saving HTML:', error);
+  }
 }
+}
+
 seriesGet();
 
 
 
-const url = 'https://scp-wiki.wikidot.com/scp-2000';
-axios.get(url)
-  .then(response => {
-    const html = response.data;
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-    // let paths = path.join('test',`edit.html`);
-    let paths = path.join(`editFile.html`);
-
-    fs.writeFile(paths, html, (err) => {
-      if (err) {
-        console.error('Error saving file:', err);
-      } else {
-        console.log('HTML saved to editFile.html');
-        downloadItem();
-      }
-    });
-  })
-  .catch(error => {
-    console.error('Error fetching HTML:', error);
-  });
 
