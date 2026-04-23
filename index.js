@@ -3,15 +3,15 @@ const path = require('path');
 const fs = require('fs');
 const cheerio = require('cheerio');
 
-function getItemIds(url){
-  axios.get(url)
+async function getItemIds(url){
+  return axios.get(url)
   .then(response=> {
     const html = response.data;
     let $ = cheerio.load(html);
 
     let $li = $('li:contains("SCP-")');
     let iID = $('$li');
-    console.log($li);
+    // console.log($li);
     
     let results = [];
     $li.each((i, el) => {
@@ -20,8 +20,10 @@ function getItemIds(url){
     results.push(id);
 });
 
-    fs.writeFileSync('a.txt', results.join('\n'));
-    console.log(results);
+    // fs.writeFileSync('a.txt', results.join('\n'));
+    // console.log(results);
+
+    return results;
 
   })
 }
@@ -100,8 +102,13 @@ fs.writeFile(paths, reg, (err) => {
 // downloads file from wiki
 let seriesItemUrl = 'https://scp-wiki.wikidot.com/scp-series-10';
 
-let itemIds = [];
-getItemIds(seriesItemUrl);
+async function seriesGet(){
+  let itemIds = await getItemIds(seriesItemUrl);
+  console.log('test' + itemIds[0]);
+}
+seriesGet();
+
+
 
 const url = 'https://scp-wiki.wikidot.com/scp-2000';
 axios.get(url)
