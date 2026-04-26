@@ -77,6 +77,23 @@ $('.bibitem').append(
   `
 );
 
+// replace the hrefs
+$('a[href*="/scp-"]').each((i, el) => {
+  const oldHref = $(el).attr('href');
+
+  const match = oldHref.match(/\/scp-(\d+)/);
+  if (!match) return;
+
+  const itemNum = match[1];
+
+  const newHref = `https://raw.githubusercontent.com/subvertReal/scpWikiAPI/refs/heads/main/SCP-${itemNum}.html`;
+
+  $(el).attr('href', newHref);
+});
+// console.log(itemNum);
+
+
+
 
 let reg = $.html();
 
@@ -99,8 +116,27 @@ fs.writeFile(paths, reg, (err) => {
 
 
 
+
 // downloads file from wiki
-let seriesItemUrl = 'https://scp-wiki.wikidot.com/scp-series';
+let seriesItemUrl = 'https://scp-wiki.wikidot.com/scp-series-11';
+
+let seriesItemArray = [];
+
+axios.get(seriesItemUrl).catch(function (err)
+{
+
+  if (err.response){
+    console.log('we have err '+err.response);
+  }
+  else{
+    
+  }
+})
+  .then(response=> {
+    
+  }
+  
+  );
 
 async function seriesGet() {
   let itemIds = await getItemIds(seriesItemUrl);
@@ -108,6 +144,11 @@ async function seriesGet() {
   if (itemIds[0] === 'SCP-001') {
     itemIds.shift();
   }
+
+  if (itemIds.includes('STAFF')) {
+  itemIds = itemIds.filter(id => id !== 'STAFF');
+  
+}
 
   // let it = ['SCP-002', 'SCP-003'];
 
@@ -128,8 +169,8 @@ async function seriesGet() {
 
     downloadItem();
 
-    // wait 2 seconds before next request
-    await sleep(2000);
+    // wait .05 seconds before next request, to prevent race condition
+    await sleep(50); // 100 is currently safe
 
   } catch (error) {
     console.error('Error fetching or saving HTML:', error);
@@ -137,7 +178,7 @@ async function seriesGet() {
 }
 }
 
-seriesGet();
+// seriesGet();
 
 
 

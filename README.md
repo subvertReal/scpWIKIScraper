@@ -8,3 +8,4 @@ Currently having issues with these articles and may need to manually put a fix o
 - SCP-3211
 - SCP-3125
 - SCP-2212
+- SCP-736 (api pulls the name as "We" instead of the actual item number which is very confusing for obvious reasons)
