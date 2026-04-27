@@ -28,10 +28,11 @@ async function getItemIds(url){
   })
 }
 
-function downloadItem(){
+function downloadItem(itemNumber){
 // cheerio loads the html file that is read
 
-let $ = cheerio.load(fs.readFileSync('editFile.html'), null, false);
+// let $ = cheerio.load(fs.readFileSync('editFile.html'), null, false);
+let $ = cheerio.load(fs.readFileSync(`editingFiles/${itemNumber}.html`), null, false);
 
 // get the page title for filename
 let itemNum = $('title').text();
@@ -158,7 +159,7 @@ async function doCount() {
   let i = 0;
 
   while ( i < seriesItemArray.length){
-    seriesGet(seriesItemArray[1]);
+    seriesGet(seriesItemArray[i]);
     i++
   }
 })();
@@ -182,21 +183,23 @@ async function seriesGet(i) {
 
   for (let i = 0; i < itemIds.length; i++) {
   try {
+    console.log(itemIds[i]);
     let url = `https://scp-wiki.wikidot.com/${itemIds[i]}`;
     const response = await axios.get(url);
 
     const html = response.data;
 
-    let paths = path.join('editFile.html');
+    // let paths = path.join(`editFile.html`);
+    let paths = path.join('editingFiles',`${itemIds[i]}.html`);
 
     await fs.promises.writeFile(paths, html);
 
     console.log(`HTML saved for ${itemIds[i]}`);
 
-    downloadItem();
+    downloadItem(itemIds[i]);
 
-    // wait .05 seconds before next request, to prevent race condition
-    await sleep(200); // 100 is currently safe
+    // wait 1 second before next request, to help prevent race condition
+    await sleep(1000); // 1000 ms seems safe, going lower seems to show a race condition
 
   } catch (error) {
     console.error('Error fetching or saving HTML:', error);
