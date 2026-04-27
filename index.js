@@ -118,25 +118,44 @@ fs.writeFile(paths, reg, (err) => {
 
 
 // downloads file from wiki
-let seriesItemUrl = 'https://scp-wiki.wikidot.com/scp-series-11';
+let seriesItemUrl = 'https://scp-wiki.wikidot.com/scp-series-';
 
 let seriesItemArray = [];
+let check = true;
 
-axios.get(seriesItemUrl).catch(function (err)
-{
+async function countSeriesTotal(i) {
+  try {
+    await axios.get(seriesItemUrl + i);
+    seriesItemArray.push(i);
+    return true;
+  } catch (err) {
+    if (err.response) {
+      console.log('we have err ' + err.response.status);
+    }
+    return false;
+  }
+}
+async function doCount() {
+  let i = 1;
+  let check = true;
 
-  if (err.response){
-    console.log('we have err '+err.response);
+
+
+  while (check) {
+    // console.log(seriesItemUrl + i);
+
+    check = await countSeriesTotal(i);
+    i++;
   }
-  else{
-    
-  }
-})
-  .then(response=> {
-    
-  }
+
   
-  );
+}
+
+(async () => {
+  await doCount();
+  console.log('Final array:', seriesItemArray);
+})();
+
 
 async function seriesGet() {
   let itemIds = await getItemIds(seriesItemUrl);
