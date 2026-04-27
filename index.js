@@ -153,12 +153,19 @@ async function doCount() {
 
 (async () => {
   await doCount();
-  console.log('Final array:', seriesItemArray);
+  // console.log('Final array:', seriesItemArray);
+  // console.log('Final array:', seriesItemArray.length);
+  let i = 0;
+
+  while ( i < seriesItemArray.length){
+    seriesGet(seriesItemArray[1]);
+    i++
+  }
 })();
 
 
-async function seriesGet() {
-  let itemIds = await getItemIds(seriesItemUrl);
+async function seriesGet(i) {
+  let itemIds = await getItemIds(seriesItemUrl+i);
 
   if (itemIds[0] === 'SCP-001') {
     itemIds.shift();
@@ -189,7 +196,7 @@ async function seriesGet() {
     downloadItem();
 
     // wait .05 seconds before next request, to prevent race condition
-    await sleep(50); // 100 is currently safe
+    await sleep(200); // 100 is currently safe
 
   } catch (error) {
     console.error('Error fetching or saving HTML:', error);
@@ -197,7 +204,8 @@ async function seriesGet() {
 }
 }
 
-// seriesGet();
+
+
 
 
 
