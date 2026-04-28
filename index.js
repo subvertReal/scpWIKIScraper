@@ -28,7 +28,8 @@ async function getItemIds(url){
   })
 }
 
-function downloadItem(itemNumber){
+function downloadItem(itemNumber, seriesIndex){
+  // console.log('index: '+seriesIndex)
 // cheerio loads the html file that is read
 
 // let $ = cheerio.load(fs.readFileSync('editFile.html'), null, false);
@@ -97,10 +98,13 @@ $('a[href*="/scp-"]').each((i, el) => {
 
 
 let reg = $.html();
+let dir = `html/series-${seriesIndex}`;
 
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir, { recursive: true });
+}
 
-
-let paths = path.join('html',`${itemNum}.html`);
+let paths = path.join('html', `series-${seriesIndex}` ,`${itemNum}.html`);
 
 
 fs.writeFile(paths, reg, (err) => {
@@ -128,6 +132,10 @@ async function countSeriesTotal(i) {
   try {
     await axios.get(seriesItemUrl + i);
     seriesItemArray.push(i);
+    let dir = 'series '+i;
+    if (!path.existsSync(dir)) {
+    fs.mkdirSync(dir);
+    }
     return true;
   } catch (err) {
     if (err.response) {
@@ -152,21 +160,8 @@ async function doCount() {
   
 }
 
-(async () => {
-  await doCount();
-  // console.log('Final array:', seriesItemArray);
-  // console.log('Final array:', seriesItemArray.length);
-  let i = 0;
-
-  while ( i < seriesItemArray.length){
-    seriesGet(seriesItemArray[i]);
-    i++
-  }
-})();
-
-
-async function seriesGet(i) {
-  let itemIds = await getItemIds(seriesItemUrl+i);
+async function seriesGet(a) {
+  let itemIds = await getItemIds(seriesItemUrl+a);
 
   if (itemIds[0] === 'SCP-001') {
     itemIds.shift();
@@ -183,6 +178,7 @@ async function seriesGet(i) {
 
   for (let i = 0; i < itemIds.length; i++) {
   try {
+    // console.log('index2 '+ i);
     console.log(itemIds[i]);
     let url = `https://scp-wiki.wikidot.com/${itemIds[i]}`;
     const response = await axios.get(url);
@@ -196,10 +192,10 @@ async function seriesGet(i) {
 
     console.log(`HTML saved for ${itemIds[i]}`);
 
-    downloadItem(itemIds[i]);
+    downloadItem(itemIds[i], a);
 
     // wait 1 second before next request, to help prevent race condition
-    await sleep(1000); // 1000 ms seems safe, going lower seems to show a race condition
+    await sleep(50); // 1000 ms seems safe, going lower seems to show a race condition
 
   } catch (error) {
     console.error('Error fetching or saving HTML:', error);
@@ -207,9 +203,43 @@ async function seriesGet(i) {
 }
 }
 
+// ! Gets the articles for the scp items except for the 001 entires
+
+// (async () => {
+//   await doCount();
+//   // console.log('Final array:', seriesItemArray);
+//   // console.log('Final array:', seriesItemArray.length);
+//   let i = 0;
+
+//   while ( i < seriesItemArray.length){
+//     seriesGet(seriesItemArray[i]);
+//     i++
+//   }
+// })();
 
 
+// ! get the articles that are 001 entires
 
+let zeroOneEntries = [];
+
+axios.get('https://scp-wiki.wdfiles.com/local--html/scp-001/ce0dd3ecb9ba45bbfcdea7ef595841dd58610590-17096811771783988190/scp-wiki.wikidot.com/')
+.then(response => {
+  const html = response.data;
+  const $ = cheerio.load(html);
+
+  const links = $('a:contains("CODE NAME:")');
+
+  console.log('length:', links.length);
+
+  links.each((i, el) => {
+    const text = $(el).text();
+    const href = $(el).attr('href');
+
+    zeroOneEntries.push({ text, href });
+  });
+
+  console.log(zeroOneEntries);
+});
 
 
 function sleep(ms) {
