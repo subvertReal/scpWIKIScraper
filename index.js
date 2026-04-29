@@ -32,91 +32,91 @@ async function getItemIds(url){
 
 function downloadItem(itemNumber, seriesIndex){
   // console.log('index: '+seriesIndex)
-// cheerio loads the html file that is read
+  // cheerio loads the html file that is read
 
-// let $ = cheerio.load(fs.readFileSync('editFile.html'), null, false);
-let $ = cheerio.load(fs.readFileSync(`editingFiles/${itemNumber}.html`), null, false);
+  // let $ = cheerio.load(fs.readFileSync('editFile.html'), null, false);
+  let $ = cheerio.load(fs.readFileSync(`editingFiles/${itemNumber}.html`), null, false);
 
-// get the page title for filename
-let itemNum = $('title').text();
-itemNum = itemNum.replace(/ .*/, "");
+  // get the page title for filename
+  let itemNum = $('title').text();
+  itemNum = itemNum.replace(/ .*/, "");
 
-console.log(itemNum);
+  console.log(itemNum);
 
-// bars
-$('#side-bar').remove();
-$('#top-bar').remove();
+  // bars
+  $('#side-bar').remove();
+  $('#top-bar').remove();
 
-//remove the width of the content
-$('#content-wrap').append(`
-  <style>
-    #content-wrap {
-      max-width: none !important;
-      width: 100% !important;
-    }
-  </style>
-`);
-
-// wiki elements that wont work
-$('.rateup').remove();
-$('.ratedown').remove();
-$('#search-top-box').remove();
-$('#login-status').remove();
-$('.cancel.btn.btn-default').remove();
-
-// footer
-$('.footer-wikiwalk-nav').remove();
-$('#footer').remove();
-$('#page-options-bottom').remove();
-
-// SCP-2000 bibitem edit, hopefully doesnt break other pages. The bib entries lose line spacings for some reason, so this should add them back
-$('.bibitem').append(
-  `
+  //remove the width of the content
+  $('#content-wrap').append(`
     <style>
-      .bibitem { 
-        padding-bottom: 2em;
-        margin-bottom: 3em;
+      #content-wrap {
+        max-width: none !important;
+        width: 100% !important;
       }
     </style>
-  `
-);
+  `);
 
-// replace the hrefs
-$('a[href*="/scp-"]').each((i, el) => {
-  const oldHref = $(el).attr('href');
+  // wiki elements that wont work
+  $('.rateup').remove();
+  $('.ratedown').remove();
+  $('#search-top-box').remove();
+  $('#login-status').remove();
+  $('.cancel.btn.btn-default').remove();
 
-  const match = oldHref.match(/\/scp-(\d+)/);
-  if (!match) return;
+  // footer
+  $('.footer-wikiwalk-nav').remove();
+  $('#footer').remove();
+  $('#page-options-bottom').remove();
 
-  const itemNum = match[1];
+  // SCP-2000 bibitem edit, hopefully doesnt break other pages. The bib entries lose line spacings for some reason, so this should add them back
+  $('.bibitem').append(
+    `
+      <style>
+        .bibitem { 
+          padding-bottom: 2em;
+          margin-bottom: 3em;
+        }
+      </style>
+    `
+  );
 
-  const newHref = `https://raw.githubusercontent.com/subvertReal/scpWikiAPI/refs/heads/main/SCP-${itemNum}.html`;
+  // replace the hrefs
+  $('a[href*="/scp-"]').each((i, el) => {
+    const oldHref = $(el).attr('href');
 
-  $(el).attr('href', newHref);
-});
-// console.log(itemNum);
+    const match = oldHref.match(/\/scp-(\d+)/);
+    if (!match) return;
 
+    const itemNum = match[1];
 
+    const newHref = `https://raw.githubusercontent.com/subvertReal/scpWikiAPI/refs/heads/main/SCP-${itemNum}.html`;
 
-
-let reg = $.html();
-let dir = `html/series-${seriesIndex}`;
-
-if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir, { recursive: true });
-}
-
-let paths = path.join('html', `series-${seriesIndex}` ,`${itemNum}.html`);
+    $(el).attr('href', newHref);
+  });
+  // console.log(itemNum);
 
 
-fs.writeFile(paths, reg, (err) => {
-      if (err) {
-        console.error('Error saving file:', err);
-      } else {
-        console.log(`HTML saved to ${itemNum}.html`);
 
-      }
-    });
+
+  let reg = $.html();
+  let dir = `html/series-${seriesIndex}`;
+
+  if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir, { recursive: true });
+  }
+
+  let paths = path.join('html', `series-${seriesIndex}` ,`${itemNum}.html`);
+
+
+  fs.writeFile(paths, reg, (err) => {
+        if (err) {
+          console.error('Error saving file:', err);
+        } else {
+          console.log(`HTML saved to ${itemNum}.html`);
+
+        }
+      });
 
 }
 
@@ -221,9 +221,10 @@ async function seriesGet(a) {
   const a = await getZeroZeoOnes(zeroOneEntries);
 
   // console.log(zeroOneEntries[0].text);
-  console.log(zeroOneEntries[0]);
+  console.log(zeroOneEntries[0].href);
+  // console.log(`https://scp-wiki.wikidot.com/${zeroOneEntries[0].href}`)
   
-
+  const b = await downloadZeroOne(zeroOneEntries);
 
 
 })();
@@ -233,15 +234,22 @@ async function seriesGet(a) {
 
 // ! get the articles that are 001 entires
 
-function downloadZeroOne(arr){
+async function downloadZeroOne(arr){
   let i = 0;
   while (i < arr.length){
-    await.get(`https://scp-wiki.wikidot.com/${arr}`)
+    await axios.get(`https://scp-wiki.wikidot.com/${arr[i].href}`)
+      .then(response =>{
+
+        
+
+
+        // downloadItem(itemNumber, seriesIndex); // change varbs plz
+      })
   }
 }
 
 async function getZeroZeoOnes(zeroOneEntries){
-const a = await axios.get('https://scp-wiki.wdfiles.com/local--html/scp-001/ce0dd3ecb9ba45bbfcdea7ef595841dd58610590-17096811771783988190/scp-wiki.wikidot.com/')
+const a = await axios.get('https://scp-wiki.wdfiles.com/local--html/scp-001/ce0dd3ecb9ba45bbfcdea7ef595841dd58610590-17096811771783988190/scp-wiki.wikidot.com/') // this doesnt seem the best link to use, but I'm not sure of an alternative tbh
 .then(response => {
   const html = response.data;
   const $ = cheerio.load(html);
@@ -269,7 +277,7 @@ const a = await axios.get('https://scp-wiki.wdfiles.com/local--html/scp-001/ce0d
 }
 
 
-
+// function that forces downloads to wait a bit, mostly for race condition and Not to kill my computer
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
