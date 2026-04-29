@@ -3,6 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const cheerio = require('cheerio');
 
+let zeroOneEntries = [];
+
 async function getItemIds(url){
   return axios.get(url)
   .then(response=> {
@@ -205,24 +207,41 @@ async function seriesGet(a) {
 
 // ! Gets the articles for the scp items except for the 001 entires
 
-// (async () => {
-//   await doCount();
-//   // console.log('Final array:', seriesItemArray);
-//   // console.log('Final array:', seriesItemArray.length);
-//   let i = 0;
+(async () => {
+  // await doCount();
+  // // console.log('Final array:', seriesItemArray);
+  // // console.log('Final array:', seriesItemArray.length);
+  // let i = 0;
 
-//   while ( i < seriesItemArray.length){
-//     seriesGet(seriesItemArray[i]);
-//     i++
-//   }
-// })();
+  // while ( i < seriesItemArray.length){
+  //   seriesGet(seriesItemArray[i]);
+  //   i++
+  // }
+
+  const a = await getZeroZeoOnes(zeroOneEntries);
+
+  // console.log(zeroOneEntries[0].text);
+  console.log(zeroOneEntries[0]);
+  
+
+
+
+})();
+
+
 
 
 // ! get the articles that are 001 entires
 
-let zeroOneEntries = [];
+function downloadZeroOne(arr){
+  let i = 0;
+  while (i < arr.length){
+    await.get(`https://scp-wiki.wikidot.com/${arr}`)
+  }
+}
 
-axios.get('https://scp-wiki.wdfiles.com/local--html/scp-001/ce0dd3ecb9ba45bbfcdea7ef595841dd58610590-17096811771783988190/scp-wiki.wikidot.com/')
+async function getZeroZeoOnes(zeroOneEntries){
+const a = await axios.get('https://scp-wiki.wdfiles.com/local--html/scp-001/ce0dd3ecb9ba45bbfcdea7ef595841dd58610590-17096811771783988190/scp-wiki.wikidot.com/')
 .then(response => {
   const html = response.data;
   const $ = cheerio.load(html);
@@ -230,16 +249,25 @@ axios.get('https://scp-wiki.wdfiles.com/local--html/scp-001/ce0dd3ecb9ba45bbfcde
   const links = $('a:contains("CODE NAME:")');
 
   console.log('length:', links.length);
+  
 
   links.each((i, el) => {
     const text = $(el).text();
     const href = $(el).attr('href');
 
-    zeroOneEntries.push({ text, href });
-  });
+     zeroOneEntries.push({ text, href });
 
-  console.log(zeroOneEntries);
+     
+    // console.log(zeroOneEntries);
+    
+  });
+  // console.log(zeroOneEntries);
+  return zeroOneEntries;
+
+  
 });
+}
+
 
 
 function sleep(ms) {
